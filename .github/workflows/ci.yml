@@ -2,12 +2,18 @@ name: CI
 on:
   push:
   pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
   unit_test:
     name: Run unit tests
     container: public.ecr.aws/docker/library/node:20.16.0
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - name: install dependencies
