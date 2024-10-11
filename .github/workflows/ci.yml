@@ -1,0 +1,36 @@
+name: CI
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  unit_test:
+    name: Run unit tests
+    container: public.ecr.aws/docker/library/node:20.16.0
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: install dependencies
+        run: |
+          npm install
+      - name: test
+        run: |
+          npm test
+      - name: Generate test report
+        id: test_report
+        uses: ./
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{steps.test_report.outputs.coverage}}`
+            })

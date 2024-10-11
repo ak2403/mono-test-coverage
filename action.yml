@@ -1,0 +1,10 @@
+name: "Turbo Test Coverage"
+description: "Turbo Test Coverage"
+
+outputs:
+  coverage:
+    description: "Test coverage"
+
+runs:
+  using: "node16"
+  main: "index.js"
