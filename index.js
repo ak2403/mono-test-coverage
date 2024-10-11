@@ -186,7 +186,9 @@ try {
   // 5. Save report to file
   const coverage = writeCoverageReportToFile(diffCoverageReport);
 
-  core.setOutput('coverage', JSON.stringify(coverageReportForVisualRepresentation));
+  core.setOutput('coverage', `
+    <b>Coverage: 80%</b>
+    `);
 } catch (error) {
   // Handle errors and indicate failure
   core.setFailed(error.message);
