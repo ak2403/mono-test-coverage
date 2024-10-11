@@ -1,19 +1,12 @@
-import Image from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { Logo } from "../components/logo";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-testid="home">
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
+        <Logo src="/next.svg" alt="Next.js logo" width={180} height={38} />
         <ol>
           <li>
             Get started by editing <code>app/page.tsx</code>
@@ -28,8 +21,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Image
-              className={styles.logo}
+            <Logo
               src="/vercel.svg"
               alt="Vercel logomark"
               width={20}
@@ -56,7 +48,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
+          <Logo
             aria-hidden
             src="/file-text.svg"
             alt="File icon"
@@ -70,7 +62,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
+          <Logo
             aria-hidden
             src="/window.svg"
             alt="Window icon"
@@ -84,7 +76,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
+          <Logo
             aria-hidden
             src="/globe.svg"
             alt="Globe icon"
