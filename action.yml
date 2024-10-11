@@ -1,0 +1,10 @@
+name: 'Turbo Test Coverage'
+description: 'Turbo Test Coverage'
+
+outputs:
+  time:
+    description: 'The time we greeted you'
+
+runs:
+  using: 'node16'
+  main: 'index.js'
