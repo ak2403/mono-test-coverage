@@ -186,7 +186,7 @@ try {
   // 5. Save report to file
   const coverage = writeCoverageReportToFile(diffCoverageReport);
 
-  core.setOutput('time', coverage);
+  core.setOutput('coverage', coverage);
 } catch (error) {
   // Handle errors and indicate failure
   core.setFailed(error.message);

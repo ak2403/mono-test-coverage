@@ -1,10 +1,10 @@
-name: 'Turbo Test Coverage'
-description: 'Turbo Test Coverage'
+name: "Turbo Test Coverage"
+description: "Turbo Test Coverage"
 
 outputs:
-  time:
-    description: 'The time we greeted you'
+  coverage:
+    description: "Test coverage"
 
 runs:
-  using: 'node16'
-  main: 'index.js'
+  using: "node16"
+  main: "index.js"
