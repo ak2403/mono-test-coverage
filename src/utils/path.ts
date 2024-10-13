@@ -8,3 +8,6 @@ export const getDirectoriesForSource = (source: string): string[] => {
 
   return dirList;
 };
+
+export const isFilePathExists = (filePath: string): boolean =>
+  fs.existsSync(filePath);

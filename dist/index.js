@@ -25667,28 +25667,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.testCoverage = void 0;
 const path_1 = __importDefault(__nccwpck_require__(6928));
 const core = __importStar(__nccwpck_require__(7484));
-const summary_path_1 = __nccwpck_require__(2254);
-const summary_1 = __nccwpck_require__(2228);
+const test_coverage_1 = __nccwpck_require__(586);
+const render_html_1 = __nccwpck_require__(5571);
 const SOURCE_PATH = path_1.default.join(__dirname, "../examples/apps");
-const testCoverage = () => {
-    const coverages = (0, summary_path_1.getTestSummaryPath)(SOURCE_PATH);
-    const summaries = (0, summary_1.getSummary)(coverages);
-    return summaries;
-};
-exports.testCoverage = testCoverage;
 const runCoverage = () => {
-    const result = (0, exports.testCoverage)();
-    core.setOutput("coverage", `<b>Coverage: ${result}`);
+    const testCoverage = new test_coverage_1.TestCoverage(SOURCE_PATH);
+    const coverageSummary = testCoverage.execute();
+    core.setOutput("coverage", `<html>
+      <body>
+        ${(0, render_html_1.makeAsBold)(`Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%`)}
+        <br />
+        <br />
+        <text>Coverage breakdown for ${coverageSummary.workspaces[0].name}</text>
+        <br />
+        ${(0, render_html_1.makeAsBold)(`Total Coverage: ${Number(coverageSummary.workspaces[0].percentage).toFixed(2)}%`)}    
+      </body>
+    </html>`);
 };
 runCoverage();
+// <table>
+// <thead>
+//   <th>Workspace</th>
+//   <th>Coverage</th>
+// </thead>
+// <tbody>
+//   ${coverageSummary.workspaces.map(
+//     (workspace) =>
+//       `<tr><td><b>${workspace.name}</b></td><td>${workspace.percentage}</td></tr>`
+//   )}
+// </tbody>
+// </table>
 
 
 /***/ }),
 
-/***/ 2254:
+/***/ 1473:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25697,40 +25712,118 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getTestSummaryPath = void 0;
+exports.CoverageSummary = void 0;
+const path_1 = __importDefault(__nccwpck_require__(6928));
 const fs_1 = __importDefault(__nccwpck_require__(9896));
-const path_1 = __nccwpck_require__(8782);
-const getTestSummaryPath = (source) => {
-    const appDirectoriesList = (0, path_1.getDirectoriesForSource)(source);
-    const output = {};
-    appDirectoriesList.map((appPath) => {
-        if (fs_1.default.existsSync(`${source}/${appPath}/coverage/coverage-summary.json`)) {
-            const files = fs_1.default.readFileSync(`${source}/${appPath}/coverage/coverage-summary.json`, {
-                encoding: "utf-8",
-            });
-            output[appPath] = JSON.parse(files);
+const path_2 = __nccwpck_require__(8782);
+const DEFAULT_COVERAGE_PATH = "coverage/coverage-summary.json";
+class CoverageSummary {
+    static fetch(sourcePath, filePath = DEFAULT_COVERAGE_PATH) {
+        const coveragePath = path_1.default.join(sourcePath, filePath);
+        if (!(0, path_2.isFilePathExists)(coveragePath)) {
+            throw new Error("Coverage not found");
         }
-    });
-    return output;
-};
-exports.getTestSummaryPath = getTestSummaryPath;
+        const dataBuffer = fs_1.default.readFileSync(coveragePath, {
+            encoding: "utf-8",
+        });
+        return JSON.parse(dataBuffer);
+    }
+}
+exports.CoverageSummary = CoverageSummary;
 
 
 /***/ }),
 
-/***/ 2228:
+/***/ 1499:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSummary = void 0;
-const getSummary = (coverages) => {
-    const stats = Object.values(coverages);
-    const total = stats.map((stat) => stat.total);
-    return total[0].lines.total;
+exports.SummaryAggregation = void 0;
+const aggregateBreakdownSummary = (breakdown) => {
+    return Object.values(breakdown).reduce((aggregates, curr) => {
+        aggregates.total += curr.total;
+        aggregates.covered += curr.covered;
+        return aggregates;
+    }, {
+        total: 0,
+        covered: 0,
+    });
 };
-exports.getSummary = getSummary;
+const calculatePercentage = (coverage) => {
+    const totalSum = coverage.reduce((total, curr) => (total += curr.total), 0);
+    const coverageSum = coverage.reduce((total, curr) => (total += curr.covered), 0);
+    return (coverageSum / totalSum) * 100;
+};
+class SummaryAggregation {
+    constructor(summaries) {
+        this._summaries = summaries;
+    }
+    getTotalCoverages() {
+        const totalCoverages = {};
+        for (const [key, breakdown] of Object.entries(this._summaries)) {
+            totalCoverages[key] = aggregateBreakdownSummary(breakdown.total);
+        }
+        return totalCoverages;
+    }
+    aggregateWorkspaces() {
+        const totalCoverages = this.getTotalCoverages();
+        return Object.keys(this._summaries).map((key) => {
+            const percentage = totalCoverages[key];
+            return {
+                percentage: (percentage.covered / percentage.total) * 100,
+                name: key,
+                totalCoverage: this._summaries[key].total,
+            };
+        });
+    }
+    aggregate() {
+        const totalCoverages = this.getTotalCoverages();
+        return {
+            percentage: calculatePercentage(Object.values(totalCoverages)),
+            workspaces: this.aggregateWorkspaces(),
+        };
+    }
+}
+exports.SummaryAggregation = SummaryAggregation;
+
+
+/***/ }),
+
+/***/ 586:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TestCoverage = void 0;
+const path_1 = __importDefault(__nccwpck_require__(6928));
+const coverage_summary_1 = __nccwpck_require__(1473);
+const summary_aggregation_1 = __nccwpck_require__(1499);
+const path_2 = __nccwpck_require__(8782);
+class TestCoverage {
+    constructor(sourcePath, coveragePath) {
+        this._sourcePath = sourcePath;
+        this._coveragePath = coveragePath;
+    }
+    execute() {
+        const dirList = (0, path_2.getDirectoriesForSource)(this._sourcePath);
+        const coverageSummaries = dirList.reduce((summaries, curr) => {
+            const summary = coverage_summary_1.CoverageSummary.fetch(path_1.default.join(this._sourcePath, curr));
+            //@ts-ignore
+            summaries[curr] = summary;
+            return summaries;
+        }, {});
+        const summaryAggregation = new summary_aggregation_1.SummaryAggregation(coverageSummaries);
+        const aggregate = summaryAggregation.aggregate();
+        return aggregate;
+    }
+}
+exports.TestCoverage = TestCoverage;
 
 
 /***/ }),
@@ -25744,7 +25837,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDirectoriesForSource = void 0;
+exports.isFilePathExists = exports.getDirectoriesForSource = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(9896));
 const getDirectoriesForSource = (source) => {
     const dirList = fs_1.default
@@ -25754,6 +25847,21 @@ const getDirectoriesForSource = (source) => {
     return dirList;
 };
 exports.getDirectoriesForSource = getDirectoriesForSource;
+const isFilePathExists = (filePath) => fs_1.default.existsSync(filePath);
+exports.isFilePathExists = isFilePathExists;
+
+
+/***/ }),
+
+/***/ 5571:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.makeAsBold = void 0;
+const makeAsBold = (text) => `<b>${text}</b>`;
+exports.makeAsBold = makeAsBold;
 
 
 /***/ }),
