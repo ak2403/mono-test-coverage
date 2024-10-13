@@ -18,9 +18,10 @@ jobs:
       - name: install dependencies
         run: |
           npm install
+          cd ./examples && npm install
       - name: test
         run: |
-          npm test
+          cd ./examples && npm test
       - name: Generate test report
         id: test_report
         uses: ./
