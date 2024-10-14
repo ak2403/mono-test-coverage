@@ -25676,7 +25676,7 @@ const runCoverage = () => {
     const testCoverage = new test_coverage_1.TestCoverage(SOURCE_PATH);
     console.log(core.getInput("rootDir"));
     console.log("==== Workspaces ====");
-    console.log(core.getInput("workspaces"));
+    console.log(core.getInput("workspaces").split(/\r\n|\r|\n/));
     console.log(__dirname);
     console.log(path_1.default.join(__dirname, core.getInput("rootDir")));
     const coverageSummary = testCoverage.execute();

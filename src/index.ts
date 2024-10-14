@@ -12,7 +12,7 @@ const runCoverage = () => {
 
   console.log(core.getInput("rootDir"));
   console.log("==== Workspaces ====");
-  console.log(core.getInput("workspaces"));
+  console.log(core.getInput("workspaces").split(/\r\n|\r|\n/));
   console.log(__dirname);
   console.log(path.join(__dirname, core.getInput("rootDir")));
 
