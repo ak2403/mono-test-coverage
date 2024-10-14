@@ -13,11 +13,13 @@ const runCoverage = () => {
   console.log(core.getInput("rootDir"));
   console.log("==== Workspaces ====");
   console.log(core.getInput("workspaces"));
+  console.log(__dirname);
+  console.log(path.join(__dirname, core.getInput("rootDir")));
 
   const coverageSummary = testCoverage.execute();
 
   core.setOutput(
-    "coverage",
+    "breakdown",
     `<div>
         <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(
           2
