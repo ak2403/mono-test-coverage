@@ -25671,37 +25671,59 @@ const path_1 = __importDefault(__nccwpck_require__(6928));
 const core = __importStar(__nccwpck_require__(7484));
 const test_coverage_1 = __nccwpck_require__(586);
 const math_1 = __nccwpck_require__(9159);
-const SOURCE_PATH = path_1.default.join(__dirname, "../examples/apps");
+const SOURCE_PATH = path_1.default.join(__dirname, "../examples");
 const runCoverage = () => {
-    const testCoverage = new test_coverage_1.TestCoverage(SOURCE_PATH);
     console.log(core.getInput("rootDir"));
-    console.log("==== Workspaces ====");
-    console.log(core.getInput("workspaces").split(/\r\n|\r|\n/));
+    const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
+    // const requiredWorkspaces = ["apps", "packages"];
     console.log(__dirname);
     console.log(path_1.default.join(__dirname, core.getInput("rootDir")));
-    const coverageSummary = testCoverage.execute();
+    const workspacesCoverage = requiredWorkspaces
+        .map((workspace) => {
+        const testCoverage = new test_coverage_1.TestCoverage(path_1.default.join(SOURCE_PATH, workspace));
+        return Object.assign(Object.assign({}, testCoverage.execute()), { name: workspace });
+    })
+        .filter(({ workspaces }) => workspaces.length !== 0);
+    const totalCoveragePercentage = (0, math_1.roundTo)(workspacesCoverage.reduce((total, curr) => (total += curr.percentage), 0) /
+        workspacesCoverage.length);
     core.setOutput("breakdown", `<div>
-        <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%</h2>
-        <h4>🧩 Coverage breakdown percentage for apps:</h4>
-        <table>
-        <thead>
-        <th></th>
-        <th>Branches 🌿</th>
-        <th>Functions 🔧</th>
-        <th>Lines 📏</th>
-        <th>Statements 📝</th>
-        <th>Total Coverage 🎯</th>
-        </thead>
-        <tr>
-        <td>${coverageSummary.workspaces[1].name}</td>
-        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.branches.covered, coverageSummary.workspaces[1].breakdown.branches.total)}</td>
-        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.functions.covered, coverageSummary.workspaces[1].breakdown.functions.total)}</td>
-        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.lines.covered, coverageSummary.workspaces[1].breakdown.lines.total)}</td>
-        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.statements.covered, coverageSummary.workspaces[1].breakdown.statements.total)}</td>
-        <td>${(0, math_1.roundTo)(coverageSummary.workspaces[1].percentage)}</td>
-        </tr>
-        </table>
-      </div>`);
+        <h2>🎯 Total Coverage: ${totalCoveragePercentage}%</h2>
+        ${workspacesCoverage.map(({ name, workspaces }) => {
+        const tableRows = workspaces.map((ws) => {
+            return `
+              <tr>
+                <td>${ws.name}</td>
+                <td>
+                  ${(0, math_1.calculatePercentage)(ws.breakdown.branches.covered, ws.breakdown.branches.total)}
+                </td>
+                <td>
+                  ${(0, math_1.calculatePercentage)(ws.breakdown.functions.covered, ws.breakdown.functions.total)}
+                </td>
+                <td>
+                  ${(0, math_1.calculatePercentage)(ws.breakdown.lines.covered, ws.breakdown.lines.total)}
+                </td>
+                <td>
+                  ${(0, math_1.calculatePercentage)(ws.breakdown.statements.covered, ws.breakdown.statements.total)}
+                </td>
+                <td>${(0, math_1.roundTo)(ws.percentage)}</td>
+              </tr>`;
+        });
+        return `<div>
+            <h4>🧩 Coverage breakdown percentage for ${name}:</h4>
+            <table>
+              <thead>
+              <th></th>
+              <th>Branches 🌿</th>
+              <th>Functions 🔧</th>
+              <th>Lines 📏</th>
+              <th>Statements 📝</th>
+              <th>Total Coverage 🎯</th>
+              </thead>
+              ${tableRows}
+              </table>
+          </div>`;
+    })}
+    </div>`);
 };
 runCoverage();
 
@@ -25726,7 +25748,8 @@ class CoverageSummary {
     static fetch(sourcePath, filePath = DEFAULT_COVERAGE_PATH) {
         const coveragePath = path_1.default.join(sourcePath, filePath);
         if (!(0, path_2.isFilePathExists)(coveragePath)) {
-            throw new Error("Coverage not found");
+            console.log(`No test coverage found for ${filePath}`);
+            return null;
         }
         const dataBuffer = fs_1.default.readFileSync(coveragePath, {
             encoding: "utf-8",
@@ -25819,8 +25842,10 @@ class TestCoverage {
         const dirList = (0, path_2.getDirectoriesForSource)(this._sourcePath);
         const coverageSummaries = dirList.reduce((summaries, curr) => {
             const summary = coverage_summary_1.CoverageSummary.fetch(path_1.default.join(this._sourcePath, curr));
-            //@ts-ignore
-            summaries[curr] = summary;
+            if (summary) {
+                //@ts-ignore
+                summaries[curr] = summary;
+            }
             return summaries;
         }, {});
         const summaryAggregation = new summary_aggregation_1.SummaryAggregation(coverageSummaries);

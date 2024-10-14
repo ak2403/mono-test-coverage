@@ -9,11 +9,13 @@ export class CoverageSummary {
   static fetch(
     sourcePath: string,
     filePath: string = DEFAULT_COVERAGE_PATH
-  ): CoverageSummaryData {
+  ): CoverageSummaryData | null {
     const coveragePath = path.join(sourcePath, filePath);
 
     if (!isFilePathExists(coveragePath)) {
-      throw new Error("Coverage not found");
+      console.log(`No test coverage found for ${filePath}`);
+
+      return null;
     }
 
     const dataBuffer = fs.readFileSync(coveragePath, {

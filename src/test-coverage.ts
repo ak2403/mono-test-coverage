@@ -18,8 +18,10 @@ export class TestCoverage {
     const coverageSummaries = dirList.reduce((summaries, curr) => {
       const summary = CoverageSummary.fetch(path.join(this._sourcePath, curr));
 
-      //@ts-ignore
-      summaries[curr] = summary;
+      if (summary) {
+        //@ts-ignore
+        summaries[curr] = summary;
+      }
 
       return summaries;
     }, {});
