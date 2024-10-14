@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CoverageSummary renders 1`] = `
+{
+  "/Users/ak/Documents/my_project_works/mono-test-coverage/examples/apps/web/app/layout.tsx": {
+    "branches": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 1,
+    },
+    "functions": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 1,
+    },
+    "lines": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 24,
+    },
+    "statements": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 24,
+    },
+  },
+  "/Users/ak/Documents/my_project_works/mono-test-coverage/examples/apps/web/app/page.tsx": {
+    "branches": {
+      "covered": 1,
+      "pct": 100,
+      "skipped": 0,
+      "total": 1,
+    },
+    "functions": {
+      "covered": 1,
+      "pct": 100,
+      "skipped": 0,
+      "total": 1,
+    },
+    "lines": {
+      "covered": 76,
+      "pct": 100,
+      "skipped": 0,
+      "total": 76,
+    },
+    "statements": {
+      "covered": 76,
+      "pct": 100,
+      "skipped": 0,
+      "total": 76,
+    },
+  },
+  "/Users/ak/Documents/my_project_works/mono-test-coverage/examples/apps/web/components/logo.tsx": {
+    "branches": {
+      "covered": 1,
+      "pct": 100,
+      "skipped": 0,
+      "total": 1,
+    },
+    "functions": {
+      "covered": 1,
+      "pct": 100,
+      "skipped": 0,
+      "total": 1,
+    },
+    "lines": {
+      "covered": 7,
+      "pct": 100,
+      "skipped": 0,
+      "total": 7,
+    },
+    "statements": {
+      "covered": 7,
+      "pct": 100,
+      "skipped": 0,
+      "total": 7,
+    },
+  },
+  "/Users/ak/Documents/my_project_works/mono-test-coverage/examples/apps/web/next.config.mjs": {
+    "branches": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 1,
+    },
+    "functions": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 1,
+    },
+    "lines": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 4,
+    },
+    "statements": {
+      "covered": 0,
+      "pct": 0,
+      "skipped": 0,
+      "total": 4,
+    },
+  },
+  "total": {
+    "branches": {
+      "covered": 2,
+      "pct": 50,
+      "skipped": 0,
+      "total": 4,
+    },
+    "branchesTrue": {
+      "covered": 0,
+      "pct": 100,
+      "skipped": 0,
+      "total": 0,
+    },
+    "functions": {
+      "covered": 2,
+      "pct": 50,
+      "skipped": 0,
+      "total": 4,
+    },
+    "lines": {
+      "covered": 83,
+      "pct": 74.77,
+      "skipped": 0,
+      "total": 111,
+    },
+    "statements": {
+      "covered": 83,
+      "pct": 74.77,
+      "skipped": 0,
+      "total": 111,
+    },
+  },
+}
+`;

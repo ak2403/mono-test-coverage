@@ -25670,35 +25670,35 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const path_1 = __importDefault(__nccwpck_require__(6928));
 const core = __importStar(__nccwpck_require__(7484));
 const test_coverage_1 = __nccwpck_require__(586);
-const render_html_1 = __nccwpck_require__(5571);
+const math_1 = __nccwpck_require__(9159);
 const SOURCE_PATH = path_1.default.join(__dirname, "../examples/apps");
 const runCoverage = () => {
     const testCoverage = new test_coverage_1.TestCoverage(SOURCE_PATH);
     const coverageSummary = testCoverage.execute();
-    core.setOutput("coverage", `<html>
-      <body>
-        ${(0, render_html_1.makeAsBold)(`Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%`)}
-        <br />
-        <br />
-        <text>Coverage breakdown for ${coverageSummary.workspaces[0].name}</text>
-        <br />
-        ${(0, render_html_1.makeAsBold)(`Total Coverage: ${Number(coverageSummary.workspaces[0].percentage).toFixed(2)}%`)}    
-      </body>
-    </html>`);
+    core.setOutput("coverage", `<div>
+        <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%</h2>
+        <h4>🧩 Coverage breakdown percentage for apps:</h4>
+        <table>
+        <thead>
+        <th></th>
+        <th>Branches 🌿</th>
+        <th>Functions 🔧</th>
+        <th>Lines 📏</th>
+        <th>Statements 📝</th>
+        <th>Total Coverage 🎯</th>
+        </thead>
+        <tr>
+        <td>${coverageSummary.workspaces[1].name}</td>
+        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.branches.covered, coverageSummary.workspaces[1].breakdown.branches.total)}</td>
+        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.functions.covered, coverageSummary.workspaces[1].breakdown.functions.total)}</td>
+        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.lines.covered, coverageSummary.workspaces[1].breakdown.lines.total)}</td>
+        <td>${(0, math_1.calculatePercentage)(coverageSummary.workspaces[1].breakdown.statements.covered, coverageSummary.workspaces[1].breakdown.statements.total)}</td>
+        <td>${(0, math_1.roundTo)(coverageSummary.workspaces[1].percentage)}</td>
+        </tr>
+        </table>
+      </div>`);
 };
 runCoverage();
-// <table>
-// <thead>
-//   <th>Workspace</th>
-//   <th>Coverage</th>
-// </thead>
-// <tbody>
-//   ${coverageSummary.workspaces.map(
-//     (workspace) =>
-//       `<tr><td><b>${workspace.name}</b></td><td>${workspace.percentage}</td></tr>`
-//   )}
-// </tbody>
-// </table>
 
 
 /***/ }),
@@ -25774,7 +25774,7 @@ class SummaryAggregation {
             return {
                 percentage: (percentage.covered / percentage.total) * 100,
                 name: key,
-                totalCoverage: this._summaries[key].total,
+                breakdown: this._summaries[key].total,
             };
         });
     }
@@ -25828,6 +25828,26 @@ exports.TestCoverage = TestCoverage;
 
 /***/ }),
 
+/***/ 9159:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.roundTo = exports.calculatePercentage = void 0;
+const calculatePercentage = (num, den) => {
+    const percentage = Number(num) / Number(den);
+    return (0, exports.roundTo)(percentage * 100);
+};
+exports.calculatePercentage = calculatePercentage;
+const roundTo = (num, roundoff = 2) => {
+    return num.toFixed(roundoff);
+};
+exports.roundTo = roundTo;
+
+
+/***/ }),
+
 /***/ 8782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -25849,19 +25869,6 @@ const getDirectoriesForSource = (source) => {
 exports.getDirectoriesForSource = getDirectoriesForSource;
 const isFilePathExists = (filePath) => fs_1.default.existsSync(filePath);
 exports.isFilePathExists = isFilePathExists;
-
-
-/***/ }),
-
-/***/ 5571:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.makeAsBold = void 0;
-const makeAsBold = (text) => `<b>${text}</b>`;
-exports.makeAsBold = makeAsBold;
 
 
 /***/ }),
