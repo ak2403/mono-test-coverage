@@ -35,8 +35,7 @@ const runCoverage = () => {
         <h2>🎯 Total Coverage: ${totalCoveragePercentage}%</h2>
         ${workspacesCoverage.map(({ name, workspaces }) => {
           const tableRows = workspaces.map((ws) => {
-            return `
-              <tr>
+            return `<tr>
                 <td>${ws.name}</td>
                 <td>
                   ${calculatePercentage(
