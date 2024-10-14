@@ -5,51 +5,82 @@ import { TestCoverage } from "./test-coverage";
 import { makeAsBold } from "./utils/render-html";
 import { calculatePercentage, roundTo } from "./utils/math";
 
-const SOURCE_PATH = path.join(__dirname, "../examples/apps");
+const SOURCE_PATH = path.join(__dirname, "../examples");
 
 const runCoverage = () => {
-  const testCoverage = new TestCoverage(SOURCE_PATH);
+  console.log(core.getInput("rootDir"));
 
-  const coverageSummary = testCoverage.execute();
+  const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
+  // const requiredWorkspaces = ["apps", "packages"];
+
+  console.log(__dirname);
+  console.log(path.join(__dirname, core.getInput("rootDir")));
+
+  const workspacesCoverage = requiredWorkspaces
+    .map((workspace) => {
+      const testCoverage = new TestCoverage(path.join(SOURCE_PATH, workspace));
+
+      return { ...testCoverage.execute(), name: workspace };
+    })
+    .filter(({ workspaces }) => workspaces.length !== 0);
+
+  const totalCoveragePercentage = roundTo(
+    workspacesCoverage.reduce((total, curr) => (total += curr.percentage), 0) /
+      workspacesCoverage.length
+  );
 
   core.setOutput(
-    "coverage",
+    "breakdown",
     `<div>
-        <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(
-          2
-        )}%</h2>
-        <h4>🧩 Coverage breakdown percentage for apps:</h4>
-        <table>
-        <thead>
-        <th></th>
-        <th>Branches 🌿</th>
-        <th>Functions 🔧</th>
-        <th>Lines 📏</th>
-        <th>Statements 📝</th>
-        <th>Total Coverage 🎯</th>
-        </thead>
-        <tr>
-        <td>${coverageSummary.workspaces[1].name}</td>
-        <td>${calculatePercentage(
-          coverageSummary.workspaces[1].breakdown.branches.covered,
-          coverageSummary.workspaces[1].breakdown.branches.total
-        )}</td>
-        <td>${calculatePercentage(
-          coverageSummary.workspaces[1].breakdown.functions.covered,
-          coverageSummary.workspaces[1].breakdown.functions.total
-        )}</td>
-        <td>${calculatePercentage(
-          coverageSummary.workspaces[1].breakdown.lines.covered,
-          coverageSummary.workspaces[1].breakdown.lines.total
-        )}</td>
-        <td>${calculatePercentage(
-          coverageSummary.workspaces[1].breakdown.statements.covered,
-          coverageSummary.workspaces[1].breakdown.statements.total
-        )}</td>
-        <td>${roundTo(coverageSummary.workspaces[1].percentage)}</td>
-        </tr>
-        </table>
-      </div>`
+        <h2>🎯 Total Coverage: ${totalCoveragePercentage}%</h2>
+        ${workspacesCoverage.map(({ name, workspaces }) => {
+          const tableRows = workspaces.map((ws) => {
+            return `<tr>
+                <td>${ws.name}</td>
+                <td>
+                  ${calculatePercentage(
+                    ws.breakdown.branches.covered,
+                    ws.breakdown.branches.total
+                  )}
+                </td>
+                <td>
+                  ${calculatePercentage(
+                    ws.breakdown.functions.covered,
+                    ws.breakdown.functions.total
+                  )}
+                </td>
+                <td>
+                  ${calculatePercentage(
+                    ws.breakdown.lines.covered,
+                    ws.breakdown.lines.total
+                  )}
+                </td>
+                <td>
+                  ${calculatePercentage(
+                    ws.breakdown.statements.covered,
+                    ws.breakdown.statements.total
+                  )}
+                </td>
+                <td>${roundTo(ws.percentage)}</td>
+              </tr>`;
+          });
+
+          return `<div>
+            <h4>🧩 Coverage breakdown percentage for ${name}:</h4>
+            <table>
+              <thead>
+              <th></th>
+              <th>Branches 🌿</th>
+              <th>Functions 🔧</th>
+              <th>Lines 📏</th>
+              <th>Statements 📝</th>
+              <th>Total Coverage 🎯</th>
+              </thead>
+              ${tableRows}
+              </table>
+          </div>`;
+        })}
+    </div>`
   );
 };
 
