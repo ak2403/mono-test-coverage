@@ -22,5 +22,6 @@ export type AggregatedCoverage = {
   workspaces: {
     percentage: number;
     name: string;
+    breakdown: CoverageBreakdown;
   }[];
 };

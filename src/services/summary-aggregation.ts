@@ -52,7 +52,7 @@ export class SummaryAggregation {
     return totalCoverages;
   }
 
-  aggregateWorkspaces(): { percentage: number; name: string }[] {
+  aggregateWorkspaces(): AggregatedCoverage["workspaces"] {
     const totalCoverages = this.getTotalCoverages();
 
     return Object.keys(this._summaries).map((key) => {
@@ -61,7 +61,7 @@ export class SummaryAggregation {
       return {
         percentage: (percentage.covered / percentage.total) * 100,
         name: key,
-        totalCoverage: this._summaries[key].total,
+        breakdown: this._summaries[key].total,
       };
     });
   }

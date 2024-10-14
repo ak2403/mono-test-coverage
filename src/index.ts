@@ -3,6 +3,7 @@ import * as core from "@actions/core";
 
 import { TestCoverage } from "./test-coverage";
 import { makeAsBold } from "./utils/render-html";
+import { calculatePercentage, roundTo } from "./utils/math";
 
 const SOURCE_PATH = path.join(__dirname, "../examples/apps");
 
@@ -13,38 +14,43 @@ const runCoverage = () => {
 
   core.setOutput(
     "coverage",
-    `<html>
-      <body>
-        ${makeAsBold(
-          `Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%`
-        )}
-        <br />
-        <br />
-        <text>Coverage breakdown for ${
-          coverageSummary.workspaces[0].name
-        }</text>
-        <br />
-        ${makeAsBold(
-          `Total Coverage: ${Number(
-            coverageSummary.workspaces[0].percentage
-          ).toFixed(2)}%`
-        )}    
-      </body>
-    </html>`
+    `<div>
+        <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(
+          2
+        )}%</h2>
+        <h4>🧩 Coverage breakdown percentage for apps:</h4>
+        <table>
+        <thead>
+        <th></th>
+        <th>Branches 🌿</th>
+        <th>Functions 🔧</th>
+        <th>Lines 📏</th>
+        <th>Statements 📝</th>
+        <th>Total Coverage 🎯</th>
+        </thead>
+        <tr>
+        <td>${coverageSummary.workspaces[1].name}</td>
+        <td>${calculatePercentage(
+          coverageSummary.workspaces[1].breakdown.branches.covered,
+          coverageSummary.workspaces[1].breakdown.branches.total
+        )}</td>
+        <td>${calculatePercentage(
+          coverageSummary.workspaces[1].breakdown.functions.covered,
+          coverageSummary.workspaces[1].breakdown.functions.total
+        )}</td>
+        <td>${calculatePercentage(
+          coverageSummary.workspaces[1].breakdown.lines.covered,
+          coverageSummary.workspaces[1].breakdown.lines.total
+        )}</td>
+        <td>${calculatePercentage(
+          coverageSummary.workspaces[1].breakdown.statements.covered,
+          coverageSummary.workspaces[1].breakdown.statements.total
+        )}</td>
+        <td>${roundTo(coverageSummary.workspaces[1].percentage)}</td>
+        </tr>
+        </table>
+      </div>`
   );
 };
 
 runCoverage();
-
-// <table>
-// <thead>
-//   <th>Workspace</th>
-//   <th>Coverage</th>
-// </thead>
-// <tbody>
-//   ${coverageSummary.workspaces.map(
-//     (workspace) =>
-//       `<tr><td><b>${workspace.name}</b></td><td>${workspace.percentage}</td></tr>`
-//   )}
-// </tbody>
-// </table>
