@@ -25674,6 +25674,9 @@ const math_1 = __nccwpck_require__(9159);
 const SOURCE_PATH = path_1.default.join(__dirname, "../examples/apps");
 const runCoverage = () => {
     const testCoverage = new test_coverage_1.TestCoverage(SOURCE_PATH);
+    console.log(core.getInput("rootDir"));
+    console.log("==== Workspaces ====");
+    console.log(core.getInput("workspaces"));
     const coverageSummary = testCoverage.execute();
     core.setOutput("coverage", `<div>
         <h2>🎯 Total Coverage: ${Number(coverageSummary.percentage).toFixed(2)}%</h2>

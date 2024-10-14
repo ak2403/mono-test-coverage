@@ -1,9 +1,18 @@
 name: "Turbo Test Coverage"
 description: "Turbo Test Coverage"
 
+inputs:
+  rootDir:
+    description: 'Root directory of the repo'
+    default: './'
+    required: false
+  workspaces:
+    description: 'List of workspaces that needs to be considered for coverage'
+    required: true
+
 outputs:
-  coverage:
-    description: "Test coverage"
+  coverage_breakdown:
+    description: "Test coverage breakdown for the workspaces"
 
 runs:
   using: "node16"

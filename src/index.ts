@@ -10,6 +10,10 @@ const SOURCE_PATH = path.join(__dirname, "../examples/apps");
 const runCoverage = () => {
   const testCoverage = new TestCoverage(SOURCE_PATH);
 
+  console.log(core.getInput("rootDir"));
+  console.log("==== Workspaces ====");
+  console.log(core.getInput("workspaces"));
+
   const coverageSummary = testCoverage.execute();
 
   core.setOutput(
