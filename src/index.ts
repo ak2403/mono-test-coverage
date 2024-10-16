@@ -1,10 +1,21 @@
 import path from "path";
 import * as core from "@actions/core";
+import { context, getOctokit } from "@actions/github";
 
 import { TestCoverage } from "./test-coverage";
 import { calculatePercentage, roundTo } from "./utils/math";
 
-const runCoverage = () => {
+function getHeadSHA(): string {
+  if (context.payload.pull_request) {
+    return context.payload.pull_request.head.sha;
+  }
+
+  return context.sha;
+}
+
+const runCoverage = async () => {
+  console.log("context of the PR");
+  console.log(context);
   const rootDir = core.getInput("rootDir") || ".";
   const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
 
@@ -78,6 +89,23 @@ const runCoverage = () => {
         })}
     </div>`
   );
+
+  const token = process.env.GITHUB_TOKEN || core.getInput("token") || "";
+
+  const octokit = getOctokit(token);
+
+  await octokit.rest.issues.createComment({
+    issue_number: context.issue.number,
+    ...context.repo,
+    body: "Hi...",
+  });
+
+  // await octokit.rest.pulls.createReviewComment({
+  //   issue_number: context.issue.number,
+  //   pull_number: context.payload.pull_request?.number || 0,
+  //   ...context.repo,
+  //   body: "Hi...",
+  // });
 };
 
 runCoverage();
