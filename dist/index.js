@@ -29953,15 +29953,7 @@ const core = __importStar(__nccwpck_require__(7484));
 const github_1 = __nccwpck_require__(3228);
 const test_coverage_1 = __nccwpck_require__(586);
 const math_1 = __nccwpck_require__(9159);
-function getHeadSHA() {
-    if (github_1.context.payload.pull_request) {
-        return github_1.context.payload.pull_request.head.sha;
-    }
-    return github_1.context.sha;
-}
 const runCoverage = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("context of the PR");
-    console.log(github_1.context);
     const rootDir = core.getInput("rootDir") || ".";
     const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
     const directoryPath = path_1.default.join(process.env.GITHUB_WORKSPACE || ".", rootDir);
@@ -29973,11 +29965,26 @@ const runCoverage = () => __awaiter(void 0, void 0, void 0, function* () {
         .filter(({ workspaces }) => workspaces.length !== 0);
     const totalCoveragePercentage = (0, math_1.roundTo)(workspacesCoverage.reduce((total, curr) => (total += curr.percentage), 0) /
         workspacesCoverage.length);
-    core.setOutput("breakdown", `<div>
+    const token = process.env.GITHUB_TOKEN || core.getInput("token") || "";
+    const octokit = (0, github_1.getOctokit)(token);
+    let issueNumber;
+    if (github_1.context.issue.number) {
+        issueNumber = github_1.context.issue.number;
+    }
+    else {
+        const res = yield octokit.rest.repos.listPullRequestsAssociatedWithCommit({
+            commit_sha: github_1.context.sha,
+            owner: github_1.context.repo.owner,
+            repo: github_1.context.repo.repo,
+        });
+        issueNumber = res.data[0].number;
+    }
+    yield octokit.rest.issues.createComment(Object.assign(Object.assign({ issue_number: issueNumber }, github_1.context.repo), { body: `<div>
         <h2>🎯 Total Coverage: ${totalCoveragePercentage}%</h2>
-        ${workspacesCoverage.map(({ name, workspaces }) => {
-        const tableRows = workspaces.map((ws) => {
-            return `<tr>
+        ${workspacesCoverage
+            .map(({ name, workspaces }) => {
+            const tableRows = workspaces.map((ws) => {
+                return `<tr>
                 <td>${ws.name}</td>
                 <td>
                   ${(0, math_1.calculatePercentage)(ws.breakdown.branches.covered, ws.breakdown.branches.total)}
@@ -29993,8 +30000,8 @@ const runCoverage = () => __awaiter(void 0, void 0, void 0, function* () {
                 </td>
                 <td>${(0, math_1.roundTo)(ws.percentage)}</td>
               </tr>`;
-        });
-        return `<div>
+            });
+            return `<div>
             <h4>🧩 Coverage breakdown percentage for ${name}:</h4>
             <table>
               <thead>
@@ -30008,17 +30015,9 @@ const runCoverage = () => __awaiter(void 0, void 0, void 0, function* () {
               ${tableRows.join("")}
               </table>
           </div>`;
-    })}
-    </div>`);
-    const token = process.env.GITHUB_TOKEN || core.getInput("token") || "";
-    const octokit = (0, github_1.getOctokit)(token);
-    yield octokit.rest.issues.createComment(Object.assign(Object.assign({ issue_number: github_1.context.issue.number }, github_1.context.repo), { body: "Hi..." }));
-    // await octokit.rest.pulls.createReviewComment({
-    //   issue_number: context.issue.number,
-    //   pull_number: context.payload.pull_request?.number || 0,
-    //   ...context.repo,
-    //   body: "Hi...",
-    // });
+        })
+            .join("")}
+    </div>` }));
 });
 runCoverage();
 

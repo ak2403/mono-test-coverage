@@ -5,17 +5,7 @@ import { context, getOctokit } from "@actions/github";
 import { TestCoverage } from "./test-coverage";
 import { calculatePercentage, roundTo } from "./utils/math";
 
-function getHeadSHA(): string {
-  if (context.payload.pull_request) {
-    return context.payload.pull_request.head.sha;
-  }
-
-  return context.sha;
-}
-
 const runCoverage = async () => {
-  console.log("context of the PR");
-  console.log(context);
   const rootDir = core.getInput("rootDir") || ".";
   const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
 
@@ -36,13 +26,32 @@ const runCoverage = async () => {
       workspacesCoverage.length
   );
 
-  core.setOutput(
-    "breakdown",
-    `<div>
+  const token = process.env.GITHUB_TOKEN || core.getInput("token") || "";
+
+  const octokit = getOctokit(token);
+  let issueNumber;
+
+  if (context.issue.number) {
+    issueNumber = context.issue.number;
+  } else {
+    const res = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
+      commit_sha: context.sha,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+    });
+
+    issueNumber = res.data[0].number;
+  }
+
+  await octokit.rest.issues.createComment({
+    issue_number: issueNumber,
+    ...context.repo,
+    body: `<div>
         <h2>🎯 Total Coverage: ${totalCoveragePercentage}%</h2>
-        ${workspacesCoverage.map(({ name, workspaces }) => {
-          const tableRows = workspaces.map((ws) => {
-            return `<tr>
+        ${workspacesCoverage
+          .map(({ name, workspaces }) => {
+            const tableRows = workspaces.map((ws) => {
+              return `<tr>
                 <td>${ws.name}</td>
                 <td>
                   ${calculatePercentage(
@@ -70,9 +79,9 @@ const runCoverage = async () => {
                 </td>
                 <td>${roundTo(ws.percentage)}</td>
               </tr>`;
-          });
+            });
 
-          return `<div>
+            return `<div>
             <h4>🧩 Coverage breakdown percentage for ${name}:</h4>
             <table>
               <thead>
@@ -86,26 +95,10 @@ const runCoverage = async () => {
               ${tableRows.join("")}
               </table>
           </div>`;
-        })}
-    </div>`
-  );
-
-  const token = process.env.GITHUB_TOKEN || core.getInput("token") || "";
-
-  const octokit = getOctokit(token);
-
-  await octokit.rest.issues.createComment({
-    issue_number: context.issue.number,
-    ...context.repo,
-    body: "Hi...",
+          })
+          .join("")}
+    </div>`,
   });
-
-  // await octokit.rest.pulls.createReviewComment({
-  //   issue_number: context.issue.number,
-  //   pull_number: context.payload.pull_request?.number || 0,
-  //   ...context.repo,
-  //   body: "Hi...",
-  // });
 };
 
 runCoverage();
