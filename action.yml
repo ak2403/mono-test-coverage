@@ -1,13 +1,13 @@
-name: "Turbo Test Coverage"
-description: "Turbo Test Coverage"
+name: "Mono Test Coverage"
+description: "Ability to provide a consolidated test coverage for mono repos"
 
 inputs:
   rootDir:
-    description: 'Root directory of the repo'
-    default: './'
+    description: "Root directory of the repo"
+    default: "./"
     required: false
   workspaces:
-    description: 'List of workspaces that needs to be considered for coverage'
+    description: "List of workspaces that needs to be considered for coverage"
     required: true
 
 outputs:
