@@ -4,10 +4,8 @@ import * as core from "@actions/core";
 import { TestCoverage } from "./test-coverage";
 import { calculatePercentage, roundTo } from "./utils/math";
 
-const SOURCE_PATH = path.join(__dirname, "../examples");
-
 const runCoverage = () => {
-  const rootDir = core.getInput("rootDir");
+  const rootDir = core.getInput("rootDir") || ".";
   const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
 
   const directoryPath = path.join(process.env.GITHUB_WORKSPACE || ".", rootDir);
@@ -74,7 +72,7 @@ const runCoverage = () => {
               <th>Statements 📝</th>
               <th>Total Coverage 🎯</th>
               </thead>
-              ${tableRows}
+              ${tableRows.join("")}
               </table>
           </div>`;
         })}

@@ -25671,9 +25671,8 @@ const path_1 = __importDefault(__nccwpck_require__(6928));
 const core = __importStar(__nccwpck_require__(7484));
 const test_coverage_1 = __nccwpck_require__(586);
 const math_1 = __nccwpck_require__(9159);
-const SOURCE_PATH = path_1.default.join(__dirname, "../examples");
 const runCoverage = () => {
-    const rootDir = core.getInput("rootDir");
+    const rootDir = core.getInput("rootDir") || ".";
     const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
     const directoryPath = path_1.default.join(process.env.GITHUB_WORKSPACE || ".", rootDir);
     const workspacesCoverage = requiredWorkspaces
@@ -25716,7 +25715,7 @@ const runCoverage = () => {
               <th>Statements 📝</th>
               <th>Total Coverage 🎯</th>
               </thead>
-              ${tableRows}
+              ${tableRows.join("")}
               </table>
           </div>`;
     })}
