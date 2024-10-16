@@ -25673,13 +25673,12 @@ const test_coverage_1 = __nccwpck_require__(586);
 const math_1 = __nccwpck_require__(9159);
 const SOURCE_PATH = path_1.default.join(__dirname, "../examples");
 const runCoverage = () => {
+    const rootDir = core.getInput("rootDir");
     const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
-    // const requiredWorkspaces = ["apps", "packages"];
-    console.log(__dirname);
-    console.log(process.env.GITHUB_WORKSPACE);
+    const directoryPath = path_1.default.join(process.env.GITHUB_WORKSPACE || ".", rootDir);
     const workspacesCoverage = requiredWorkspaces
         .map((workspace) => {
-        const testCoverage = new test_coverage_1.TestCoverage(path_1.default.join(SOURCE_PATH, workspace));
+        const testCoverage = new test_coverage_1.TestCoverage(path_1.default.join(directoryPath, workspace));
         return Object.assign(Object.assign({}, testCoverage.execute()), { name: workspace });
     })
         .filter(({ workspaces }) => workspaces.length !== 0);

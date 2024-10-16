@@ -2,21 +2,21 @@ import path from "path";
 import * as core from "@actions/core";
 
 import { TestCoverage } from "./test-coverage";
-import { makeAsBold } from "./utils/render-html";
 import { calculatePercentage, roundTo } from "./utils/math";
 
 const SOURCE_PATH = path.join(__dirname, "../examples");
 
 const runCoverage = () => {
+  const rootDir = core.getInput("rootDir");
   const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
-  // const requiredWorkspaces = ["apps", "packages"];
 
-  console.log(__dirname);
-  console.log(process.env.GITHUB_WORKSPACE);
+  const directoryPath = path.join(process.env.GITHUB_WORKSPACE || ".", rootDir);
 
   const workspacesCoverage = requiredWorkspaces
     .map((workspace) => {
-      const testCoverage = new TestCoverage(path.join(SOURCE_PATH, workspace));
+      const testCoverage = new TestCoverage(
+        path.join(directoryPath, workspace)
+      );
 
       return { ...testCoverage.execute(), name: workspace };
     })
