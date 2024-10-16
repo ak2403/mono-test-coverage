@@ -24,7 +24,7 @@ jobs:
           cd ./examples && npm test
       - name: Generate test report
         id: test_report
-        uses: ak2403/mono-test-coverage@0.0.1
+        uses: ./
         with:
           rootDir: "./examples"
           workspaces: |

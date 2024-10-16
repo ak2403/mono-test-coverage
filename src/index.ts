@@ -8,13 +8,11 @@ import { calculatePercentage, roundTo } from "./utils/math";
 const SOURCE_PATH = path.join(__dirname, "../examples");
 
 const runCoverage = () => {
-  console.log(core.getInput("rootDir"));
-
   const requiredWorkspaces = core.getInput("workspaces").split(/\r\n|\r|\n/);
   // const requiredWorkspaces = ["apps", "packages"];
 
   console.log(__dirname);
-  console.log(path.join(__dirname, core.getInput("rootDir")));
+  console.log(process.env.GITHUB_WORKSPACE);
 
   const workspacesCoverage = requiredWorkspaces
     .map((workspace) => {
